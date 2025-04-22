@@ -148,4 +148,68 @@ p {
 
 #cancelPassword:hover, #cancelLogout:hover {
     background-color: #7f8c8d;
+}
+
+/* Voting Section Styles */
+.voting-section {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.voting-section h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.candidates {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.candidate {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+.candidate input[type="radio"] {
+    margin: 0;
+}
+
+.candidate label {
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+}
+
+.submit-vote-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-vote-btn:hover {
+    background-color: #27ae60;
+}
+
+.submit-vote-btn:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
 } 

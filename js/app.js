@@ -3,6 +3,7 @@ class StationManager {
         this.currentStationId = null;
         this.stationRef = null;
         this.heartbeatInterval = null;
+        this.votingSystem = null;
         this.setupLogoutHandlers();
     }
 
@@ -53,6 +54,10 @@ class StationManager {
                 this.stationRef = window.database.ref(`stations/${this.currentStationId}`);
                 this.setupStationCleanup();
                 this.startHeartbeat();
+                
+                // Initialize voting system
+                this.votingSystem = new VotingSystem(this.currentStationId, window.database);
+                
                 return this.currentStationId;
             } else {
                 throw new Error('Failed to allocate station');
@@ -195,6 +200,12 @@ class StationManager {
             if (this.heartbeatInterval) {
                 clearInterval(this.heartbeatInterval);
                 this.heartbeatInterval = null;
+            }
+            
+            // Remove voting section if it exists
+            const votingSection = document.querySelector('.voting-section');
+            if (votingSection) {
+                votingSection.remove();
             }
             
             // Mark the station as inactive
