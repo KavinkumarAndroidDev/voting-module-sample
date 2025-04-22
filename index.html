@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Station Manager</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Station Manager</h1>
+        <div class="status-container">
+            <p id="stationId">Station ID: Loading...</p>
+            <p id="status">Status: Loading...</p>
+        </div>
+        <button id="logoutBtn" class="logout-btn">Logout Session</button>
+    </div>
+
+    <!-- Modal for password input -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h2>Enter Password</h2>
+            <input type="password" id="passwordInput" placeholder="Enter password">
+            <div class="modal-buttons">
+                <button id="submitPassword">Submit</button>
+                <button id="cancelPassword">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for confirmation -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h2>Confirm Logout</h2>
+            <p>Are you sure you want to deactivate this station?</p>
+            <div class="modal-buttons">
+                <button id="confirmLogout">Yes, Deactivate</button>
+                <button id="cancelLogout">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load our scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html> 

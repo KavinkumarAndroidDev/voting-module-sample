@@ -1,0 +1,44 @@
+{
+  "stations": {
+    "station1": {
+      "session": "inactive",
+      "lastActive": 0
+    },
+    "station2": {
+      "session": "inactive",
+      "lastActive": 0
+    },
+    "station3": {
+      "session": "inactive",
+      "lastActive": 0
+    },
+    "station4": {
+      "session": "inactive",
+      "lastActive": 0
+    },
+    "station5": {
+      "session": "inactive",
+      "lastActive": 0
+    },
+    "station6": {
+      "session": "inactive",
+      "lastActive": 0
+    },
+    "station7": {
+      "session": "inactive",
+      "lastActive": 0
+    },
+    "station8": {
+      "session": "inactive",
+      "lastActive": 0
+    },
+    "station9": {
+      "session": "inactive",
+      "lastActive": 0
+    },
+    "station10": {
+      "session": "inactive",
+      "lastActive": 0
+    }
+  }
+}
