@@ -47,8 +47,8 @@ h1 {
 }
 
 .candidates {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 0.8rem;
     margin-bottom: 1.5rem;
 }
@@ -292,3 +292,53 @@ footer {
     padding: 0.5rem 0; /* Adjust padding as needed */
     z-index: 10; /* Ensure it's above other elements if necessary */
 }
+/* ... other styles ... */
+
+.candidate-info {
+    display: flex;
+    align-items: center;
+    width: 100%; /* Ensure it takes full width */
+}
+
+.party-image {
+    width: 50px; /* Adjust as needed */
+    height: 50px; /* Adjust as needed */
+    border-radius: 50%;
+    margin-right: 1rem;
+    object-fit: cover; /* Ensure image fills the circle */
+}
+
+.names {
+    text-align: left;
+    flex-grow: 1; /* Allow names to take remaining space */
+}
+
+.english-name {
+    display: block;
+    font-weight: bold;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.tamil-name {
+    display: block;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.candidate input[type="radio"] {
+    /* Keep existing radio button styles, adjust margin if needed */
+    margin-right: 1.5rem; /* More space between radio and info */
+}
+
+.candidate {
+    justify-content: flex-start; /* Align items to the start to accommodate image */
+}
+
+.error-message {
+    color: red;
+    font-style: italic;
+    margin-top: 1rem;
+}
+
+

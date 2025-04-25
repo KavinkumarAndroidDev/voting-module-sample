@@ -14,7 +14,6 @@ class StationManager {
         this.beepSound = new Audio('beep.mp3');
     }
 
-
     async allocateStation() {
         try {
             const stationsRef = window.database.ref('stations');
@@ -57,6 +56,7 @@ class StationManager {
                 this.setupVoteSubmission();
                 this.clearVoterDetails();
                 this.disableVoting();
+                this.loadCandidates(); // Load candidates after station allocation
                 return this.currentStationId;
             } else {
                 throw new Error('Failed to allocate station');
@@ -64,6 +64,34 @@ class StationManager {
         } catch (error) {
             console.error('Error allocating station:', error);
             throw error;
+        }
+    }
+
+    async loadCandidates() {
+        const candidatesDiv = document.querySelector('.candidates');
+        candidatesDiv.innerHTML = ''; // Clear existing placeholders
+        try {
+            const candidatesSnapshot = await firebase.firestore().collection('candidates').get();
+            candidatesSnapshot.forEach(doc => {
+                const candidateData = doc.data();
+                const candidateId = doc.id;
+                const candidateDiv = document.createElement('label');
+                candidateDiv.classList.add('candidate');
+                candidateDiv.innerHTML = `
+                    <input type="radio" name="vote" value="${candidateId}" disabled>
+                    <div class="candidate-info">
+                        <img src="${candidateData.imageURL}" alt="${candidateData.englishName}" class="party-image">
+                        <div class="names">
+                            <span class="english-name">${candidateData.englishName}</span>
+                            <span class="tamil-name">${candidateData.tamilName}</span>
+                        </div>
+                    </div>
+                `;
+                candidatesDiv.appendChild(candidateDiv);
+            });
+        } catch (error) {
+            console.error('Error fetching candidates:', error);
+            candidatesDiv.innerHTML = '<p class="error-message">Failed to load candidates.</p>';
         }
     }
 
@@ -268,12 +296,12 @@ class StationManager {
         });
     }
 
-    async submitVote(voterId, candidate) {
+    async submitVote(voterId, candidateId) { // Changed 'candidate' to 'candidateId'
         try {
             const voteData = {
                 stationId: this.currentStationId,
                 voterId: voterId,
-                candidate: candidate,
+                candidateId: candidateId, // Store candidateId
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
             const voteRef = await firebase.firestore().collection('votedetials').add(voteData);
