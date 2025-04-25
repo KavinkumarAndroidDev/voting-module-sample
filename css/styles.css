@@ -5,80 +5,202 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    background-color: #f4f4f4;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* A more modern font */
+    line-height: 1.6; /* Improved line height */
+    background-color: #f4f6f8; /* Slightly different background */
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .container {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    padding: 2.5rem; /* Slightly more padding */
+    border-radius: 12px; /* More rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); /* Softer shadow */
     text-align: center;
-    max-width: 90%;
-    width: 500px;
+    max-width: 95%;
+    width: 450px; /* Slightly wider */
 }
 
 h1 {
     color: #333;
     margin-bottom: 2rem;
+    font-size: 2.2rem; /* Larger heading */
+    font-weight: 500;
 }
 
-.status-container {
-    background-color: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 5px;
-    margin-top: 1rem;
+.voting-area {
+    background-color: #f9f9f9;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
 }
 
-p {
-    margin: 0.5rem 0;
+.voting-area h2 {
     color: #555;
+    margin-bottom: 1.2rem;
+    font-size: 1.6rem;
+    font-weight: 400;
+}
+
+.candidates {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.candidate {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s ease-in-out; /* Subtle hover effect */
+}
+
+.candidate:hover {
+    border-color: #ccc;
+}
+
+.candidate input[type="radio"] {
+    margin-right: 1rem;
+    appearance: none; /* Modern radio button styling */
+    width: 16px;
+    height: 16px;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.candidate input[type="radio"]:checked::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #007bff; /* A more prominent color */
+}
+
+.candidate span {
+    color: #333;
     font-size: 1.1rem;
 }
 
-#stationId, #status {
-    font-weight: bold;
-    color: #2c3e50;
-}
-
-/* Logout Button Styles */
-.logout-btn {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #e74c3c;
+.submit-vote-btn {
+    padding: 1rem 2rem;
+    background-color: #28a745; /* More vibrant green */
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.2s ease-in-out;
+    width: 100%;
+}
+
+.submit-vote-btn:hover {
+    background-color: #218838;
+}
+
+.submit-vote-btn:disabled {
+    background-color: #ddd;
+    color: #999;
+    cursor: not-allowed;
+}
+
+#voteTimer {
+    margin-top: 1rem;
     font-size: 1rem;
-    transition: background-color 0.3s;
+    color: #6c757d; /* Muted color */
+    font-weight: bold;
+}
+
+.logout-btn {
+    margin-top: 2rem;
+    padding: 0.8rem 1.5rem;
+    background-color: #dc3545; /* More vibrant red */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.2s ease-in-out;
 }
 
 .logout-btn:hover {
-    background-color: #c0392b;
+    background-color: #c82333;
 }
 
-/* Get New Station Button Styles */
 .get-new-station-btn {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #3498db;
+    margin-top: 1.2rem;
+    padding: 0.8rem 1.5rem;
+    background-color: #007bff; /* More vibrant blue */
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s;
+    font-size: 1.1rem;
+    transition: background-color 0.2s ease-in-out;
 }
 
 .get-new-station-btn:hover {
-    background-color: #2980b9;
+    background-color: #0056b3;
+}
+
+/* Top Right Voter Details */
+.top-right {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    text-align: right;
+    font-size: 1rem;
+    color: #495057;
+}
+
+.voter-details p {
+    margin: 0.3rem 0;
+    font-weight: 500;
+}
+
+/* Bottom Right Station Details */
+.bottom-right {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    text-align: right;
+    font-size: 1rem;
+    color: #495057;
+}
+
+.station-details p {
+    margin: 0.3rem 0;
+    font-weight: 500;
+}
+
+#stationId {
+    color: #007bff;
+}
+
+#status {
+    color: #28a745;
 }
 
 /* Modal Styles */
@@ -96,120 +218,63 @@ p {
 }
 
 .modal-content {
-    background-color: white;
+    background-color: #fff;
     padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 90%;
-    max-width: 400px;
+    max-width: 350px;
     text-align: center;
 }
 
 .modal h2 {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.2rem;
     color: #333;
+    font-size: 1.4rem;
+    font-weight: 400;
 }
 
-.modal input {
+.modal input[type="password"] {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 1.5rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding: 0.8rem;
+    margin-bottom: 1.2rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     font-size: 1rem;
 }
 
 .modal-buttons {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 
 .modal-buttons button {
-    padding: 10px 20px;
+    padding: 0.8rem 1.2rem;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 1rem;
+    font-weight: 500;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.modal-buttons button:hover {
+    opacity: 0.9;
 }
 
 #submitPassword, #confirmLogout {
-    background-color: #3498db;
+    background-color: #007bff;
     color: white;
-}
-
-#submitPassword:hover, #confirmLogout:hover {
-    background-color: #2980b9;
 }
 
 #cancelPassword, #cancelLogout {
-    background-color: #95a5a6;
+    background-color: #6c757d;
     color: white;
 }
 
-#cancelPassword:hover, #cancelLogout:hover {
-    background-color: #7f8c8d;
+.delay-message {
+    margin-top: 1rem;
+    font-style: italic;
+    color: #888;
+    font-size: 0.9rem;
 }
-
-/* Voting Section Styles */
-.voting-section {
-    margin: 20px 0;
-    padding: 20px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.voting-section h2 {
-    color: #2c3e50;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.candidates {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.candidate {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    background-color: white;
-    border-radius: 4px;
-    border: 1px solid #e0e0e0;
-}
-
-.candidate input[type="radio"] {
-    margin: 0;
-}
-
-.candidate label {
-    font-size: 16px;
-    color: #333;
-    cursor: pointer;
-}
-
-.submit-vote-btn {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.submit-vote-btn:hover {
-    background-color: #27ae60;
-}
-
-.submit-vote-btn:disabled {
-    background-color: #95a5a6;
-    cursor: not-allowed;
-} 
