@@ -278,3 +278,17 @@ h1 {
     color: #888;
     font-size: 0.9rem;
 }
+footer.small {
+    font-size: 0.8rem;
+    color: #777; /* Example muted color */
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 0.5rem 0; /* Adjust padding as needed */
+    z-index: 10; /* Ensure it's above other elements if necessary */
+}
