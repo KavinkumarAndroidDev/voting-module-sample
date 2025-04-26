@@ -1,3 +1,4 @@
+// js/app.js
 class StationManager {
     constructor() {
         this.currentStationId = null;
@@ -9,9 +10,15 @@ class StationManager {
         this.voterIdQueue = [];
         this.votingActive = false;
         this.delayTimeout = null; // To clear the timeout if needed
+        this.publicKey = null;
         this.setupLogoutHandlers();
         this.setupCloseConfirmation();
         this.beepSound = new Audio('beep.mp3');
+        this.loadPublicKey();
+    }
+
+    async loadPublicKey() {
+        this.publicKey = await loadPublicKey();
     }
 
     async allocateStation() {
@@ -273,8 +280,7 @@ class StationManager {
         const timeLeft = this.voteEndTime - Date.now();
         const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-        document.getElementById('voteTimer').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }
+        document.getElementById('voteTimer').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;    }
 
     displayDelayMessage(message) {
         document.getElementById('delayMessage').textContent = message;
@@ -296,32 +302,40 @@ class StationManager {
         });
     }
 
-    async submitVote(voterId, candidateId) { // Changed 'candidate' to 'candidateId'
+    async submitVote(voterId, candidateId) {
         try {
-            const voteData = {
-                stationId: this.currentStationId,
-                voterId: voterId,
-                candidateId: candidateId, // Store candidateId
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            const voteRef = await firebase.firestore().collection('votedetials').add(voteData);
-            console.log('Vote submitted with ID:', voteRef.id);
-            alert('Vote submitted!');
+            const salt = await generateSalt();
+            const timestamp = Date.now();
+            const voteDataString = `<span class="math-inline">\{voterId\}\|</span>{candidateId}|<span class="math-inline">\{salt\}\|</span>{timestamp}`;
+            const hashedVoteData = await sha256Hash(voteDataString);
 
-            this.beepSound.play();
+            const encryptedHash = await encryptRSA(hashedVoteData, this.publicKey);
 
-            await firebase.firestore().collection('Voter detials').doc(voterId).update({ hasVoted: true });
-            await this.removeCurrentVoterIdFromDB(voterId);
-            this.resetVotingUI();
-            this.activeVoterId = null;
-            this.votingActive = true;
+            if (encryptedHash) {
+                const voteDetails = {
+                    encryptedHash: encryptedHash
+                };
+                await firebase.firestore().collection('votedetials').doc(voterId).set(voteDetails);
+                console.log('Encrypted vote submitted for voter:', voterId);
+                alert('Vote submitted!');
 
-            this.displayDelayMessage('Waiting for 30 seconds...');
-            this.delayTimeout = setTimeout(() => {
-                this.votingActive = false;
-                this.clearDelayMessage();
-                this.processVoterQueue();
-            }, 30000);
+                this.beepSound.play();
+
+                await firebase.firestore().collection('Voter detials').doc(voterId).update({ hasVoted: true });
+                await this.removeCurrentVoterIdFromDB(voterId);
+                this.resetVotingUI();
+                this.activeVoterId = null;
+                this.votingActive = true;
+
+                this.displayDelayMessage('Waiting for 30 seconds...');
+                this.delayTimeout = setTimeout(() => {
+                    this.votingActive = false;
+                    this.clearDelayMessage();
+                    this.processVoterQueue();
+                }, 30000);
+            } else {
+                alert('Failed to encrypt vote data.');
+            }
 
         } catch (error) {
             console.error('Error submitting vote:', error);

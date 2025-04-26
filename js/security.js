@@ -52,3 +52,55 @@ document.addEventListener('focus', () => {
     openFullscreen();
   }
 });
+
+
+//NEW
+async function generateSalt() {
+  const randomBytes = new Uint8Array(16);
+  crypto.getRandomValues(randomBytes);
+  return Array.from(randomBytes)
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+}
+
+async function loadPublicKey() {
+  try {
+      const response = await fetch('public_key_spki.b64');
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const b64 = await response.text();
+      const der = Uint8Array.from(atob(b64.replace(/\s/g, '')), c => c.charCodeAt(0));
+      return await crypto.subtle.importKey(
+          'spki',
+          der.buffer,
+          { name: 'RSA-OAEP', hash: 'SHA-256' },
+          false,
+          ['encrypt']
+      );
+  } catch (error) {
+      console.error('Error loading or importing public key:', error);
+      return null;
+  }
+}
+
+async function sha256Hash(data) {
+  const msgUint8 = new TextEncoder().encode(data);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function encryptRSA(data, publicKey) {
+  if (!publicKey) {
+      console.error('Public key not loaded.');
+      return null;
+  }
+  const dataUint8 = new TextEncoder().encode(data);
+  const encryptedBuffer = await crypto.subtle.encrypt(
+      { name: 'RSA-OAEP' },
+      publicKey,
+      dataUint8
+  );
+  return btoa(String.fromCharCode(...new Uint8Array(encryptedBuffer)));
+}
