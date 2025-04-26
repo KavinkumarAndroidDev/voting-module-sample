@@ -306,19 +306,30 @@ class StationManager {
         try {
             const salt = await generateSalt();
             const timestamp = Date.now();
-            const voteDataString = `<span class="math-inline">\{voterId\}\|</span>{candidateId}|<span class="math-inline">\{salt\}\|</span>{timestamp}`;
+            const voteDataString = `${voterId}|${candidateId}|${salt}|${timestamp}`;
             const hashedVoteData = await sha256Hash(voteDataString);
 
             const encryptedHash = await encryptRSA(hashedVoteData, this.publicKey);
 
             if (encryptedHash) {
-                const voteDetails = {
+                const voteDetailsFirestore = {
                     encryptedHash: encryptedHash
                 };
-                await firebase.firestore().collection('votedetials').doc(voterId).set(voteDetails);
-                console.log('Encrypted vote submitted for voter:', voterId);
-                alert('Vote submitted!');
+                await firebase.firestore().collection('votedetials').doc(voterId).set(voteDetailsFirestore);
+                console.log('Encrypted vote submitted to Firestore for voter:', voterId);
 
+                // Store the encrypted hash in Firebase Realtime Database
+                const blockchainVotesRef = window.database.ref('blockchain_votes');
+                const voteEntry = {
+                    voterId: voterId,
+                    candidateId: candidateId,
+                    salt: salt,
+                    timestamp: timestamp
+                };
+                await blockchainVotesRef.push(voteEntry);
+                console.log('Encrypted vote data pushed to Realtime Database:', encryptedHash);
+
+                alert('Vote submitted!');
                 this.beepSound.play();
 
                 await firebase.firestore().collection('Voter detials').doc(voterId).update({ hasVoted: true });
