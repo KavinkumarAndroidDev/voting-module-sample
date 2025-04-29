@@ -1,3 +1,4 @@
+/* Reset and General Styles */
 * {
     margin: 0;
     padding: 0;
@@ -5,75 +6,97 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* A more modern font */
-    line-height: 1.6; /* Improved line height */
-    background-color: #f4f6f8; /* Slightly different background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    background-color: #f8f9fa;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
+    padding-bottom: 60px; /* Add padding at the bottom to accommodate the fixed footer */
 }
 
 .container {
     background-color: #fff;
-    padding: 2.5rem; /* Slightly more padding */
-    border-radius: 12px; /* More rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); /* Softer shadow */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     text-align: center;
     max-width: 95%;
-    width: 450px; /* Slightly wider */
+    width: 600px; /* Slightly wider container for better candidate display */
 }
 
 h1 {
-    color: #333;
-    margin-bottom: 2rem;
-    font-size: 2.2rem; /* Larger heading */
-    font-weight: 500;
+    color: #343a40;
+    margin-bottom: 25px;
+    font-size: 2.5rem;
+    font-weight: 600;
 }
 
+/* Voting Area */
 .voting-area {
-    background-color: #f9f9f9;
-    padding: 2rem;
+    background-color: #fff;
+    padding: 25px;
     border-radius: 8px;
-    margin-top: 1.5rem;
+    margin-top: 20px;
+    border: 1px solid #e9ecef;
 }
 
 .voting-area h2 {
-    color: #555;
-    margin-bottom: 1.2rem;
-    font-size: 1.6rem;
-    font-weight: 400;
+    color: #495057;
+    margin-bottom: 18px;
+    font-size: 1.8rem;
+    font-weight: 500;
 }
 
 .candidates {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 0.8rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Adjust min width for better flow */
+    gap: 12px;
+    margin-bottom: 20px;
+    max-height: 400px; /* Add a maximum height for scrolling */
+    overflow-y: auto; /* Enable vertical scrolling if there are many candidates */
+    padding-right: 10px; /* Add some padding to prevent scrollbar from overlapping */
+}
+
+/* Style for the scrollbar (optional, for better aesthetics) */
+.candidates::-webkit-scrollbar {
+    width: 8px;
+}
+
+.candidates::-webkit-scrollbar-thumb {
+    background-color: #ced4da;
+    border-radius: 4px;
+}
+
+.candidates::-webkit-scrollbar-track {
+    background-color: #f8f9fa;
+    border-radius: 4px;
 }
 
 .candidate {
     display: flex;
     align-items: center;
-    padding: 1rem;
+    padding: 15px;
     border: 1px solid #e0e0e0;
     border-radius: 6px;
-    background-color: #fff;
+    background-color: #f9f9f9;
     cursor: pointer;
-    transition: border-color 0.2s ease-in-out; /* Subtle hover effect */
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
 
 .candidate:hover {
+    background-color: #f0f0f0;
     border-color: #ccc;
 }
 
 .candidate input[type="radio"] {
-    margin-right: 1rem;
-    appearance: none; /* Modern radio button styling */
-    width: 16px;
-    height: 16px;
-    border: 1px solid #ccc;
+    margin-right: 15px;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #adb5bd;
     border-radius: 50%;
     outline: none;
     cursor: pointer;
@@ -85,27 +108,55 @@ h1 {
 .candidate input[type="radio"]:checked::before {
     content: '';
     display: block;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    background-color: #007bff; /* A more prominent color */
+    background-color: #007bff;
 }
 
-.candidate span {
-    color: #333;
+.candidate-info {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.party-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+    background-color: #eee;
+}
+
+.names {
+    text-align: left;
+}
+
+.english-name {
+    display: block;
+    font-weight: 500;
+    color: #343a40;
     font-size: 1.1rem;
 }
 
+.tamil-name {
+    display: block;
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
 .submit-vote-btn {
-    padding: 1rem 2rem;
-    background-color: #28a745; /* More vibrant green */
+    padding: 12px 24px;
+    background-color: #28a745;
     color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 1.1rem;
-    transition: background-color 0.2s ease-in-out;
+    transition: background-color 0.15s ease-in-out;
     width: 100%;
+    margin-top: 15px;
 }
 
 .submit-vote-btn:hover {
@@ -113,85 +164,62 @@ h1 {
 }
 
 .submit-vote-btn:disabled {
-    background-color: #ddd;
-    color: #999;
+    background-color: #e9ecef;
+    color: #adb5bd;
     cursor: not-allowed;
 }
 
 #voteTimer {
-    margin-top: 1rem;
+    margin-top: 15px;
     font-size: 1rem;
-    color: #6c757d; /* Muted color */
+    color: #6c757d;
     font-weight: bold;
 }
 
-.logout-btn {
-    margin-top: 2rem;
-    padding: 0.8rem 1.5rem;
-    background-color: #dc3545; /* More vibrant red */
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: background-color 0.2s ease-in-out;
-}
-
-.logout-btn:hover {
-    background-color: #c82333;
-}
-
-.get-new-station-btn {
-    margin-top: 1.2rem;
-    padding: 0.8rem 1.5rem;
-    background-color: #007bff; /* More vibrant blue */
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: background-color 0.2s ease-in-out;
-}
-
-.get-new-station-btn:hover {
-    background-color: #0056b3;
+.delay-message {
+    margin-top: 10px;
+    font-style: italic;
+    color: #868e96;
+    font-size: 0.9rem;
 }
 
 /* Top Right Voter Details */
 .top-right {
     position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
+    top: 20px;
+    right: 20px;
     background-color: #f8f9fa;
-    padding: 1rem;
+    padding: 12px;
     border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
     text-align: right;
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: #495057;
+    z-index: 11; /* Ensure it's above the fixed footer if needed */
 }
 
 .voter-details p {
-    margin: 0.3rem 0;
+    margin: 5px 0;
     font-weight: 500;
 }
 
 /* Bottom Right Station Details */
 .bottom-right {
     position: absolute;
-    bottom: 1.5rem;
-    right: 1.5rem;
+    bottom: 20px;
+    right: 20px;
     background-color: #f8f9fa;
-    padding: 1rem;
+    padding: 12px;
     border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
     text-align: right;
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: #495057;
+    z-index: 11; /* Ensure it's above the fixed footer */
 }
 
 .station-details p {
-    margin: 0.3rem 0;
+    margin: 5px 0;
     font-weight: 500;
 }
 
@@ -203,59 +231,77 @@ h1 {
     color: #28a745;
 }
 
+/* Logout Button */
+#logoutBtn {
+    margin-top: 25px;
+    padding: 10px 20px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.15s ease-in-out;
+}
+
+#logoutBtn:hover {
+    background-color: #c82333;
+}
+
 /* Modal Styles */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
+    z-index: 1050;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.4);
     align-items: center;
     justify-content: center;
 }
 
 .modal-content {
     background-color: #fff;
-    padding: 2rem;
+    padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     width: 90%;
-    max-width: 350px;
+    max-width: 400px;
     text-align: center;
 }
 
 .modal h2 {
-    margin-bottom: 1.2rem;
-    color: #333;
-    font-size: 1.4rem;
-    font-weight: 400;
+    margin-bottom: 20px;
+    color: #343a40;
+    font-size: 1.6rem;
+    font-weight: 500;
 }
 
 .modal input[type="password"] {
     width: 100%;
-    padding: 0.8rem;
-    margin-bottom: 1.2rem;
-    border: 1px solid #ccc;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ced4da;
     border-radius: 6px;
     font-size: 1rem;
 }
 
 .modal-buttons {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    gap: 10px;
 }
 
 .modal-buttons button {
-    padding: 0.8rem 1.2rem;
+    padding: 10px 18px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 1rem;
     font-weight: 500;
-    transition: opacity 0.2s ease-in-out;
+    transition: opacity 0.15s ease-in-out;
 }
 
 .modal-buttons button:hover {
@@ -272,15 +318,9 @@ h1 {
     color: white;
 }
 
-.delay-message {
-    margin-top: 1rem;
-    font-style: italic;
-    color: #888;
-    font-size: 0.9rem;
-}
-footer.small {
-    font-size: 0.8rem;
-    color: #777; /* Example muted color */
+/* Footer Styles */
+footer.bg-light {
+    background-color: #f8f9fa !important;
 }
 
 footer {
@@ -289,56 +329,20 @@ footer {
     left: 0;
     width: 100%;
     text-align: center;
-    padding: 0.5rem 0; /* Adjust padding as needed */
-    z-index: 10; /* Ensure it's above other elements if necessary */
-}
-/* ... other styles ... */
-
-.candidate-info {
-    display: flex;
-    align-items: center;
-    width: 100%; /* Ensure it takes full width */
+    padding: 10px 0;
+    z-index: 10;
 }
 
-.party-image {
-    width: 50px; /* Adjust as needed */
-    height: 50px; /* Adjust as needed */
-    border-radius: 50%;
-    margin-right: 1rem;
-    object-fit: cover; /* Ensure image fills the circle */
+footer p.mb-0 {
+    margin-bottom: 0 !important;
+    font-size: 0.85rem;
+    color: #6c757d;
 }
 
-.names {
-    text-align: left;
-    flex-grow: 1; /* Allow names to take remaining space */
-}
-
-.english-name {
-    display: block;
-    font-weight: bold;
-    color: #333;
-    font-size: 1.1rem;
-}
-
-.tamil-name {
-    display: block;
-    color: #666;
+/* Error Message */
+.error-message {
+    color: #dc3545;
+    font-style: italic;
+    margin-top: 10px;
     font-size: 0.9rem;
 }
-
-.candidate input[type="radio"] {
-    /* Keep existing radio button styles, adjust margin if needed */
-    margin-right: 1.5rem; /* More space between radio and info */
-}
-
-.candidate {
-    justify-content: flex-start; /* Align items to the start to accommodate image */
-}
-
-.error-message {
-    color: red;
-    font-style: italic;
-    margin-top: 1rem;
-}
-
-
