@@ -3,7 +3,7 @@ document.addEventListener('contextmenu', event => event.preventDefault());
 
 // Block some keyboard shortcuts
 document.addEventListener('keydown', function(e) {
-  if (e.key === "F12" ||
+  if (e.key === "F12" || e.key ==="ESC" || e.key === "F11"  ||
       (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") ||
       (e.ctrlKey && e.key.toLowerCase() === "u") ||
       (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c")) {
