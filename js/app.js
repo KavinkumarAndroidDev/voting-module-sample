@@ -328,8 +328,6 @@ class StationManager {
                 };
                 await blockchainVotesRef.push(voteEntry);
                 console.log('Encrypted vote data pushed to Realtime Database:', encryptedHash);
-
-                alert('Vote submitted!');
                 this.beepSound.play();
 
                 await firebase.firestore().collection('Voter detials').doc(voterId).update({ hasVoted: true });
