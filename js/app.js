@@ -343,7 +343,7 @@ candidatesDiv.appendChild(candidateDiv);
         try {
             const salt = await generateSalt();
             const timestamp = Date.now();
-            const voteDataString = `<span class="math-inline">\{voterId\}\|</span>{candidateId}|<span class="math-inline">\{salt\}\|</span>{timestamp}`;
+            const voteDataString = `${voterId}|${candidateId}|${salt}|${timestamp}`;
             const hashedVoteData = await sha256Hash(voteDataString);
 
             const encryptedHash = await encryptRSA(hashedVoteData, this.publicKey);
