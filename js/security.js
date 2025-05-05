@@ -102,5 +102,32 @@ async function encryptRSA(data, publicKey) {
       publicKey,
       dataUint8
   );
-  return btoa(String.fromCharCode(...new Uint8Array(encryptedBuffer)));
+  return encryptedBuffer;
+  //return btoa(String.fromCharCode(...new Uint8Array(encryptedBuffer)));
 }
+
+// (This function would likely reside in app.js or another relevant file)
+async function encryptRSAOAEP(plainText, publicKey) {
+  try {
+      if (!publicKey) {
+          throw new Error('[DEBUG] Public key not loaded.');
+      }
+      const encoder = new TextEncoder();
+      const data = encoder.encode(plainText);
+      const encryptedBuffer = await crypto.subtle.encrypt(
+          { name: 'RSA-OAEP' },
+          publicKey,
+          data
+      );
+      const encryptedBase64 = btoa(String.fromCharCode(...new Uint8Array(encryptedBuffer)));
+      console.log(`[DEBUG] Encrypted hash: ${encryptedBase64}`);
+      return encryptedBase64;
+  } catch (error) {
+      console.error('[DEBUG] Encryption error:', error);
+      throw error;
+  }
+}
+
+// In app.js, after loading the public key:
+// const hashedVoteData = await sha256Hash(voteDataString);
+// const encryptedHash = await encryptRSAOAEP(hashedVoteData, stationManager.publicKey);
