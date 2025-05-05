@@ -2,6 +2,7 @@
 class StationManager {
     constructor() {
         this.currentStationId = null;
+        this.currentBoothId = null; // Track the current booth ID
         this.stationRef = null;
         this.heartbeatInterval = null;
         this.activeVoterId = null;
@@ -21,42 +22,78 @@ class StationManager {
         this.publicKey = await loadPublicKey();
     }
 
-    async allocateStation() {
+    async requestBoothLogin() {
+        return new Promise((resolve, reject) => {
+            const boothId = prompt("Enter Booth ID:");
+            if (boothId) {
+                resolve(boothId.trim());
+            } else {
+                reject("Booth ID cannot be empty.");
+            }
+        });
+    }
+
+    async verifyBoothPassword(boothId) {
         try {
-            const stationsRef = window.database.ref('stations');
+            const doc = await firebase.firestore().collection('booth_credentials').doc(boothId).get();
+            if (doc.exists) {
+                const data = doc.data();
+                const password = prompt(`Enter password for Booth ${boothId}:`);
+                if (password === data.password) {
+                    return true;
+                } else {
+                    alert('Incorrect password.');
+                    return false;
+                }
+            } else {
+                alert(`Booth ID "${boothId}" not found.`);
+                return false;
+            }
+        } catch (error) {
+            console.error("Error verifying booth password:", error);
+            alert("Failed to verify booth credentials.");
+            return false;
+        }
+    }
+
+    async allocateStation(boothId) {
+        try {
+            const stationsRef = window.database.ref(`booths/${boothId}/stations`);
             const snapshot = await stationsRef.once('value');
             const stations = snapshot.val();
-
+    
             if (!stations) {
-                throw new Error('No stations found in database. Please import the stations data manually.');
+                throw new Error(`No stations found for booth ${boothId}.`);
             }
-
+    
             let foundStationId = null;
             for (const stationId in stations) {
-                if (stationId.startsWith('station') && stations[stationId].session === 'inactive') {
+                if (stations[stationId].session === 'inactive') {
                     foundStationId = stationId;
                     break;
                 }
             }
-
+    
             if (!foundStationId) {
-                throw new Error('No available stations. All stations are currently active.');
+                throw new Error(`No available stations in booth ${boothId}.`);
             }
-
-            const stationRef = window.database.ref(`stations/${foundStationId}`);
+    
+            const stationRef = window.database.ref(`booths/${boothId}/stations/${foundStationId}`);
             const result = await stationRef.transaction((station) => {
                 if (station && station.session === 'inactive') {
                     station.session = 'active';
                     station.lastActive = firebase.database.ServerValue.TIMESTAMP;
                     station.currentVoterIds = {};
                     this.currentStationId = foundStationId;
+                    this.currentBoothId = boothId; // Ensure booth ID is set here as well
                     return station;
                 }
                 return null;
             });
-
+    
             if (result.committed) {
-                this.stationRef = window.database.ref(`stations/${this.currentStationId}`);
+                // Now 'this' should correctly refer to the StationManager instance
+                this.stationRef = window.database.ref(`booths/${this.currentBoothId}/stations/${this.currentStationId}`);
                 this.setupStationCleanup();
                 this.startHeartbeat();
                 this.setupVoterIdListener();
@@ -83,18 +120,17 @@ class StationManager {
                 const candidateData = doc.data();
                 const candidateId = doc.id;
                 const candidateDiv = document.createElement('label');
-                candidateDiv.classList.add('candidate');
-                candidateDiv.innerHTML = `
-                    <input type="radio" name="vote" value="${candidateId}" disabled>
-                    <div class="candidate-info">
-                        <img src="${candidateData.imageURL}" alt="${candidateData.englishName}" class="party-image">
-                        <div class="names">
-                            <span class="english-name">${candidateData.englishName}</span>
-                            <span class="tamil-name">${candidateData.tamilName}</span>
-                        </div>
-                    </div>
-                `;
-                candidatesDiv.appendChild(candidateDiv);
+candidateDiv.classList.add('candidate');
+candidateDiv.innerHTML =
+    '<input type="radio" name="vote" value="' + candidateId + '" disabled>' +
+    '<div class="candidate-info">' +
+        '<img src="' + candidateData.imageURL + '" alt="' + candidateData.englishName + '" class="party-image">' +
+        '<div class="names">' +
+            '<span class="english-name">' + candidateData.englishName + '</span>' +
+            '<span class="tamil-name">' + candidateData.tamilName + '</span>' +
+        '</div>' +
+    '</div>';
+candidatesDiv.appendChild(candidateDiv);
             });
         } catch (error) {
             console.error('Error fetching candidates:', error);
@@ -122,13 +158,13 @@ class StationManager {
         }
 
         setTimeout(() => {
-            if (this.currentStationId) {
+            if (this.currentStationId && this.currentBoothId) {
                 this.stationRef.set({
                     session: 'inactive',
                     lastActive: firebase.database.ServerValue.TIMESTAMP,
                     currentVoterIds: null
                 }).then(() => {
-                    this.allocateStation().catch(error => {
+                    this.allocateStation(this.currentBoothId).catch(error => {
                         console.error('Failed to reconnect:', error);
                         document.getElementById('status').textContent = 'Error: Connection lost. Please refresh the page.';
                     });
@@ -148,7 +184,7 @@ class StationManager {
     }
 
     cleanupStation() {
-        if (this.currentStationId && this.stationRef) {
+        if (this.currentStationId && this.currentBoothId && this.stationRef) {
             if (this.heartbeatInterval) {
                 clearInterval(this.heartbeatInterval);
                 this.heartbeatInterval = null;
@@ -280,7 +316,8 @@ class StationManager {
         const timeLeft = this.voteEndTime - Date.now();
         const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-        document.getElementById('voteTimer').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;    }
+        document.getElementById('voteTimer').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
 
     displayDelayMessage(message) {
         document.getElementById('delayMessage').textContent = message;
@@ -306,7 +343,7 @@ class StationManager {
         try {
             const salt = await generateSalt();
             const timestamp = Date.now();
-            const voteDataString = `${voterId}|${candidateId}|${salt}|${timestamp}`;
+            const voteDataString = `<span class="math-inline">\{voterId\}\|</span>{candidateId}|<span class="math-inline">\{salt\}\|</span>{timestamp}`;
             const hashedVoteData = await sha256Hash(voteDataString);
 
             const encryptedHash = await encryptRSA(hashedVoteData, this.publicKey);
@@ -353,7 +390,7 @@ class StationManager {
     }
 
     async removeCurrentVoterIdFromDB(voterId) {
-        if (this.currentStationId && this.stationRef && voterId) {
+        if (this.currentStationId && this.currentBoothId && this.stationRef && voterId) {
             const currentVoterIdsRef = this.stationRef.child('currentVoterIds');
             const snapshot = await currentVoterIdsRef.orderByValue().equalTo(voterId).once('value');
             snapshot.forEach(childSnapshot => {
@@ -380,6 +417,7 @@ class StationManager {
 
         submitPasswordBtn.addEventListener('click', () => {
             const password = passwordInput.value;
+            // Basic password check, consider fetching from database for security
             if (password === '771987') {
                 passwordModal.style.display = 'none';
                 confirmModal.style.display = 'flex';
@@ -411,7 +449,7 @@ class StationManager {
     }
 
     manualLogout() {
-        if (this.currentStationId && this.stationRef) {
+        if (this.currentStationId && this.currentBoothId && this.stationRef) {
             if (this.heartbeatInterval) {
                 clearInterval(this.heartbeatInterval);
                 this.heartbeatInterval = null;
@@ -421,8 +459,7 @@ class StationManager {
                 session: 'inactive',
                 lastActive: firebase.database.ServerValue.TIMESTAMP,
                 currentVoterIds: null
-            }).then(() => {
-                document.getElementById('status').textContent = 'Logged Out';
+            }).then(() => {document.getElementById('status').textContent = 'Logged Out';
                 document.getElementById('logoutBtn').disabled = true;
                 this.clearVoterDetails();
                 this.disableVoting();
@@ -430,15 +467,22 @@ class StationManager {
                 const getNewStationBtn = document.createElement('button');
                 getNewStationBtn.textContent = 'Get New Station';
                 getNewStationBtn.className = 'get-new-station-btn';
-                getNewStationBtn.addEventListener('click', () => {
-                    this.allocateStation().then(newStationId => {
-                        document.getElementById('stationId').textContent = newStationId;
-                        document.getElementById('status').textContent = 'Active';
-                        document.getElementById('logoutBtn').disabled = false;
-                        getNewStationBtn.remove();
-                    }).catch(error => {
-                        document.getElementById('status').textContent = `Error: ${error.message}`;
-                    });
+                getNewStationBtn.addEventListener('click', async () => {
+                    try {
+                        const boothId = await this.requestBoothLogin();
+                        const isPasswordCorrect = await this.verifyBoothPassword(boothId);
+                        if (isPasswordCorrect) {
+                            const newStationId = await this.allocateStation(boothId);
+                            document.getElementById('stationId').textContent = newStationId;
+                            document.getElementById('status').textContent = 'Active';
+                            document.getElementById('logoutBtn').disabled = false;
+                            getNewStationBtn.remove();
+                        } else {
+                            document.getElementById('status').textContent = 'Booth login failed.';
+                        }
+                    } catch (error) {
+                        document.getElementById('status').textContent = `Error: ${error}`;
+                    }
                 });
                 const container = document.querySelector('.container');
                 if (container) {
@@ -450,6 +494,7 @@ class StationManager {
             });
         }
     }
+
     setupCloseConfirmation() {
         window.addEventListener('beforeunload', (event) => {
             if (this.currentStationId && document.getElementById('status').textContent === 'Active') {
@@ -464,10 +509,17 @@ class StationManager {
 document.addEventListener('DOMContentLoaded', async () => {
     const stationManager = new StationManager();
     try {
-        const stationId = await stationManager.allocateStation();
-        document.getElementById('stationId').textContent = stationId;
-        document.getElementById('status').textContent = 'Active';
+        const boothId = await stationManager.requestBoothLogin();
+        const isPasswordCorrect = await stationManager.verifyBoothPassword(boothId);
+        if (isPasswordCorrect) {
+            stationManager.currentBoothId = boothId; // Set booth ID immediately
+            const stationId = await stationManager.allocateStation(boothId);
+            document.getElementById('stationId').textContent = stationId;
+            document.getElementById('status').textContent = 'Active';
+        } else {
+            document.getElementById('status').textContent = 'Booth login failed.';
+        }
     } catch (error) {
-        document.getElementById('status').textContent = `Error: ${error.message}`;
+        document.getElementById('status').textContent = `Error: ${error}`;
     }
 });
