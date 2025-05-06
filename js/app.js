@@ -395,7 +395,7 @@ candidatesDiv.appendChild(candidateDiv);
                 email: email,
                 phoneNumber: phoneNumber,
                 timestamp: formattedTimestamp,
-                fullMessage: `${voterName}, your vote has been casted successfully at ${formattedTimestamp}. Regarding any issue or any problem regarding voting or booth kindly report on this link "placeholder link", immediate actions are take place.`
+                fullMessage: `${voterName}, your vote has been casted successfully at ${formattedTimestamp}. Regarding any issue or any problem regarding voting or booth kindly report on this link https://voting-issue-complaint-form-ete.netlify.app/, immediate actions are take place.`
               };
       
               try {
