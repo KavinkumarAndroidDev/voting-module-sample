@@ -341,53 +341,92 @@ candidatesDiv.appendChild(candidateDiv);
 
     async submitVote(voterId, candidateId) {
         try {
-            const salt = await generateSalt();
-            const timestamp = Date.now();
-            const voteDataString = `${voterId}|${candidateId}|${salt}|${timestamp}`;
-            const hashedVoteData = await sha256Hash(voteDataString);
-
-            const encryptedHash = await encryptRSA(hashedVoteData, this.publicKey);
-
-            if (encryptedHash) {
-                const voteDetailsFirestore = {
-                    encryptedHash: encryptedHash
-                };
-                await firebase.firestore().collection('votedetials').doc(voterId).set(voteDetailsFirestore);
-                console.log('Encrypted vote submitted to Firestore for voter:', voterId);
-
-                // Store the encrypted hash in Firebase Realtime Database
-                const blockchainVotesRef = window.database.ref('blockchain_votes');
-                const voteEntry = {
-                    voterId: voterId,
-                    candidateId: candidateId,
-                    salt: salt,
-                    timestamp: timestamp
-                };
-                await blockchainVotesRef.push(voteEntry);
-                console.log('Encrypted vote data pushed to Realtime Database:', encryptedHash);
-                this.beepSound.play();
-
-                await firebase.firestore().collection('Voter detials').doc(voterId).update({ hasVoted: true });
-                await this.removeCurrentVoterIdFromDB(voterId);
-                this.resetVotingUI();
-                this.activeVoterId = null;
-                this.votingActive = true;
-
-                this.displayDelayMessage('Waiting for 30 seconds...');
-                this.delayTimeout = setTimeout(() => {
-                    this.votingActive = false;
-                    this.clearDelayMessage();
-                    this.processVoterQueue();
-                }, 30000);
-            } else {
-                alert('Failed to encrypt vote data.');
+          const salt = await generateSalt();
+          const timestamp = Date.now();
+          const voteDataString = `${voterId}|${candidateId}|${salt}|${timestamp}`;
+          const hashedVoteData = await sha256Hash(voteDataString);
+          const encryptedHash = await encryptRSA(hashedVoteData, this.publicKey);
+      
+          if (encryptedHash) {
+            const voteDetailsFirestore = {
+              encryptedHash: encryptedHash
+            };
+            await firebase.firestore().collection('votedetials').doc(voterId).set(voteDetailsFirestore);
+            console.log('Encrypted vote submitted to Firestore for voter:', voterId);
+      
+            // Store the encrypted hash in Firebase Realtime Database
+            const blockchainVotesRef = window.database.ref('blockchain_votes');
+            const voteEntry = {
+              voterId: voterId,
+              candidateId: candidateId,
+              salt: salt,
+              timestamp: timestamp
+            };
+            await blockchainVotesRef.push(voteEntry);
+            console.log('Encrypted vote data pushed to Realtime Database:', encryptedHash);
+            this.beepSound.play();
+      
+            await firebase.firestore().collection('Voter detials').doc(voterId).update({
+              hasVoted: true
+            });
+            await this.removeCurrentVoterIdFromDB(voterId);
+            this.resetVotingUI();
+            this.activeVoterId = null;
+            this.votingActive = true;
+      
+            this.displayDelayMessage('Waiting for 30 seconds...');
+            this.delayTimeout = setTimeout(() => {
+              this.votingActive = false;
+              this.clearDelayMessage();
+              this.processVoterQueue();
+            }, 30000);
+      
+            // **New: Send data to n8n webhook**
+            const voterDoc = await firebase.firestore().collection('Voter detials').doc(voterId).get();
+            if (voterDoc.exists) {
+              const voterData = voterDoc.data();
+              const voterName = voterData.Name || 'N/A';
+              const email = voterData.email;
+              const phoneNumber = voterData.phonenumber;
+              const formattedTimestamp = new Date(timestamp).toLocaleString();
+              const messagePayload = {
+                voterId: voterId,
+                voterName: voterName,
+                email: email,
+                phoneNumber: phoneNumber,
+                timestamp: formattedTimestamp,
+                fullMessage: `${voterName}, your vote has been casted successfully at ${formattedTimestamp}. Regarding any issue or any problem regarding voting or booth kindly report on this link "placeholder link", immediate actions are take place.`
+              };
+      
+              try {
+                const n8nWebhookUrl = 'https://primary-production-ad16.up.railway.app/webhook/5139c4fe-1da5-4e33-997a-f83d92c868c6'; // Replace with your n8n webhook URL
+                const response = await fetch(n8nWebhookUrl, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(messagePayload),
+                });
+      
+                if (response.ok) {
+                  console.log('Data sent to n8n successfully:', await response.json());
+                } else {
+                  console.error('Failed to send data to n8n:', response.status);
+                }
+              } catch (error) {
+                console.error('Error sending data to n8n:', error);
+              }
             }
-
+      
+          } else {
+            alert('Failed to encrypt vote data.');
+          }
+      
         } catch (error) {
-            console.error('Error submitting vote:', error);
-            alert('Failed to submit vote.');
+          console.error('Error submitting vote:', error);
+          alert('Failed to submit vote.');
         }
-    }
+      }
 
     async removeCurrentVoterIdFromDB(voterId) {
         if (this.currentStationId && this.currentBoothId && this.stationRef && voterId) {
