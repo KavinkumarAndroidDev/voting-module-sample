@@ -399,7 +399,7 @@ candidatesDiv.appendChild(candidateDiv);
               };
       
               try {
-                const n8nWebhookUrl = 'https://primary-production-ad16.up.railway.app/webhook/5139c4fe-1da5-4e33-997a-f83d92c868c6'; // Replace with your n8n webhook URL
+                const n8nWebhookUrl = 'https://primary-production-ad16.up.railway.app/webhook-test/5139c4fe-1da5-4e33-997a-f83d92c868c6'; // Replace with your n8n webhook URL
                 const response = await fetch(n8nWebhookUrl, {
                   method: 'POST',
                   headers: {
