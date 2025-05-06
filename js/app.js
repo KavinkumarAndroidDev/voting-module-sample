@@ -386,7 +386,7 @@ candidatesDiv.appendChild(candidateDiv);
             if (voterDoc.exists) {
               const voterData = voterDoc.data();
               const voterName = voterData.Name || 'N/A';
-              const email = voterData.email;
+              const email = voterData.emailid;
               const phoneNumber = voterData.phonenumber;
               const formattedTimestamp = new Date(timestamp).toLocaleString();
               const messagePayload = {
